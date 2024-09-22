@@ -23,7 +23,7 @@ app.get("/", (req: Request, res: Response) => {
     res.send("This is the Home Page");
 });
 
-// Zod schema for signup data validation
+// signup data validation
 const signupdata = zod.object({
     username: zod.string().min(3, 'Username must be at least 3 characters long'),
     password: zod.string().min(6, 'Password must be at least 6 characters long'),
@@ -31,7 +31,7 @@ const signupdata = zod.object({
     lastname: zod.string()
 });
 
-// Route to register a new user
+// Route to Signup
 app.post("/signup", async (req: Request, res: Response) => {
     const parseResult = signupdata.safeParse(req.body);
 
@@ -54,17 +54,17 @@ app.post("/signup", async (req: Request, res: Response) => {
         // Hash the password
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Store the user in the database
+        // Store the user in the DB
         const newUser = await prisma.user.create({
             data: {
                 username,
-                password: hashedPassword, // Store the hashed password
+                password: hashedPassword, 
                 firstname,
                 lastname
             }
         });
 
-        // Generate JWT token
+        //token generation
         const token = jwt.sign({ id: newUser.id, username, firstname, lastname }, JWT_SECRET, {
             expiresIn: '1h' // Set token expiration time
         });
@@ -79,6 +79,7 @@ app.post("/signup", async (req: Request, res: Response) => {
     }
 });
 
+// Route to Login
 app.post("/login", async (req: Request, res: Response) => {
     const { username, password } = req.body;
 
